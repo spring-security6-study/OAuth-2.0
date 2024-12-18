@@ -12,6 +12,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+        this.customOAuth2UserService = customOAuth2UserService;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -25,7 +31,10 @@ public class SecurityConfig {
                 .httpBasic((basic) -> basic.disable());
 
         http
-                .oauth2Login(Customizer.withDefaults()); //초기 세팅은 default값으로
+                .oauth2Login((outh2) -> outh2
+                        .userInfoEndpoint(userInfoEndpointConfig ->
+                                userInfoEndpointConfig.userService(customOAuth2UserService)) //userDetailService를 등록해주는 EdnPoint
+                );
 
         http
                 .authorizeHttpRequests((auth) -> auth
