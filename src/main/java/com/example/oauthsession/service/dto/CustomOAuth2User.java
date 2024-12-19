@@ -18,7 +18,14 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() { //리소스 서버로부터 넘어오는 모든 데이터
-        return null;
+        if (oAuth2Response instanceof GoogleResponse) {
+            // Google의 사용자 데이터를 반환
+            return ((GoogleResponse) oAuth2Response).getAttributes();
+        } else if (oAuth2Response instanceof NaverResponse) {
+            // Naver의 사용자 데이터를 반환
+            return ((NaverResponse) oAuth2Response).getAttributes();
+        }
+        throw new UnsupportedOperationException("Unknown provider");
     }
 
     @Override
