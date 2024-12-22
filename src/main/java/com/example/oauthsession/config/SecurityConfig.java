@@ -22,28 +22,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-                .csrf((csrf) -> csrf.disable());
+        http.formLogin((login) -> login.disable());
+        http.httpBasic((basic) -> basic.disable());
+        http.cors(cors -> {});
 
-        http
-                .formLogin((login) -> login.disable());
-
-        http
-                .httpBasic((basic) -> basic.disable());
-        http
-                .cors(cors -> {});
-
-        http
-                .oauth2Login((outh2) -> outh2
+        http.oauth2Login((outh2) -> outh2
                         .userInfoEndpoint(userInfoEndpointConfig ->
                                 userInfoEndpointConfig.userService(customOAuth2UserService)) //userDetailService를 등록해주는 EdnPoint
                         .successHandler(authenticationSuccessHandler())
                 );
 
-        http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/oauth2/**", "/login/**").permitAll()
-                        .anyRequest().authenticated());
+//        http.authorizeHttpRequests((auth) -> auth
+//                        .requestMatchers("/", "/oauth2/**", "/login/**").permitAll()
+//                        .anyRequest().authenticated());
 
         return http.build();
     }
