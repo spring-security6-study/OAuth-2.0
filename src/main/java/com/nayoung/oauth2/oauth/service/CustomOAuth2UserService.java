@@ -28,8 +28,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		OAuth2User oAuth2User = super.loadUser(userRequest);
 		try {
+			OAuth2User oAuth2User = super.loadUser(userRequest);
 			return processOAuth2User(userRequest, oAuth2User);
 		} catch (Exception e) {
 			throw new InternalAuthenticationServiceException(e.getMessage(), e.getCause());
@@ -44,7 +44,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			throw new OAuthProcessingException("Id not found from OAuth2 provider");
 		}
 
-		Optional<Member> memberOptional = memberRepository.findById(userInfo.getId());
+		Optional<Member> memberOptional = memberRepository.findByEmail(userInfo.getEmail());
 
 		Member member;
 		if(memberOptional.isPresent()) {
@@ -62,9 +62,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	private Member createMember(OAuth2UserInfo userInfo, OAuth2Provider oAuth2Provider) {
 		return memberRepository.save(
 			Member.builder()
-				.id(userInfo.getId())
 				.name(userInfo.getName())
 				.profileImage(userInfo.getProfileImageUrl())
+				.email("test_email")
 				.role(Role.USER)
 				.provider(oAuth2Provider)
 				.build()

@@ -20,9 +20,19 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 		this.attributes = attributes;
 	}
 
-//	OAuth2User override
+	public Long getId() {
+		return member.getId();
+	}
+
+    // OAuth2User override
 	@Override
 	public String getName() {
+		return member.getName();
+	}
+
+	// UserDetails Override
+	@Override
+	public String getUsername() {
 		return member.getName();
 	}
 
@@ -39,11 +49,5 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 	@Override
 	public String getPassword() {
 		return "";
-	}
-
-//	UserDetails Override
-	@Override
-	public String getUsername() {
-		return member.getName();
 	}
 }

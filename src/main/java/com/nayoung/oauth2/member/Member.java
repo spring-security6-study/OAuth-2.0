@@ -15,12 +15,15 @@ import lombok.NoArgsConstructor;
 public class Member {
 
 	@Id
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@Column(nullable = false)
 	private String name;
 
 	private String profileImage;
+
+	private String email;
 
 	@Column(nullable = false)
 	@Enumerated(value = EnumType.STRING)
