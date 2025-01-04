@@ -7,7 +7,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -19,7 +18,6 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
-@Slf4j
 public class JwtTokenProvider {
 
 	private static final Long ACCESS_TOKEN_EXPIRE_LENGTH = 1000L * 60 * 60;    // 1hour
@@ -56,11 +54,11 @@ public class JwtTokenProvider {
 	}
 
 	public void addRefreshToken(Authentication authentication, HttpServletResponse httpServletResponse) {
-		String refreshToken = createRefreshToken(authentication);
+		String refreshToken = createRefreshToken();
 		saveRefreshToken(authentication, refreshToken);
 	}
 
-	public String createRefreshToken(Authentication authentication) {
+	public String createRefreshToken() {
 		Date now = new Date();
 		Date validityDate = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_LENGTH);
 
