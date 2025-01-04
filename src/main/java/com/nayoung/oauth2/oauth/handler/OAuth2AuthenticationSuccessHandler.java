@@ -1,91 +1,40 @@
 package com.nayoung.oauth2.oauth.handler;
 
-import com.nayoung.oauth2.jwt.token.CustomOAuth2Token;
-import com.nayoung.oauth2.oauth.OAuth2Provider;
+import com.nayoung.oauth2.jwt.JwtTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Component
-public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+@RequiredArgsConstructor
+@Slf4j
+public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-	private String KAKAO_CLIENT_ID;
-	private String AUTH_TOKEN_URI;
-	private String GRANT_TYPE;
-
-	private final RestClient restClient;
-
-	@Autowired
-	public OAuth2AuthenticationSuccessHandler(@Value("${spring.security.oauth2.client.registration.kakao.client-id}") String kakaoClientId,
-											  @Value("${spring.security.oauth2.client.provider.kakao.token-uri}") String authTokenUri,
-											  @Value("${spring.security.oauth2.client.registration.kakao.authorization-grant-type}") String grantType) {
-		this.KAKAO_CLIENT_ID = kakaoClientId;
-		this.AUTH_TOKEN_URI = authTokenUri;
-		this.GRANT_TYPE = grantType;
-
-		this.restClient = RestClient.builder()
-			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-			.build();
-	}
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-		OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-		String id = oauthToken.getPrincipal().getAttributes().get("id").toString();
-		String registrationId = oauthToken.getAuthorizedClientRegistrationId();
-		String code = request.getParameter("code");
-
-		processOAuth2Token(id, registrationId, code);
+		String targetUrl = determineTargetUrl(request, response, authentication);
+		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 
-	private void processOAuth2Token(String id, String registrationId, String code) {
-		OAuth2Provider oAuth2Provider = OAuth2Provider.valueOf(registrationId.toUpperCase());
+	@Override
+	public String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+		String targetUrl = getDefaultTargetUrl();
 
-		CustomOAuth2Token token = null;
+		String accessToken = jwtTokenProvider.createAccessToken(authentication);
+		jwtTokenProvider.addRefreshToken(authentication, response);
 
-		if(oAuth2Provider == OAuth2Provider.GOOGLE) {
-
-		}
-		else if(oAuth2Provider == OAuth2Provider.NAVER) {
-
-		}
-		else if(oAuth2Provider == OAuth2Provider.KAKAO) {
-//			Map attributes = restClient.post()
-//				.uri(uriBuilder -> uriBuilder
-//					.scheme("https")
-//					.path(AUTH_TOKEN_URI)
-//					.queryParam("grant_type", GRANT_TYPE)
-//					.queryParam("client_id", KAKAO_CLIENT_ID)
-//					.queryParam("code", code)
-//					.build())
-//				.retrieve()
-//				.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
-//					throw new RuntimeException("Invalid Parameter");
-//				})
-//				.onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
-//					throw new RuntimeException("Internal Server Error");
-//				})
-//				.body(Map.class);
-//
-//			assert attributes != null;
-//			token = OAuth2TokenFactory.getOAuth2Token(oAuth2Provider, id, attributes);
-		}
-		else throw new IllegalArgumentException();
-
-		// TODO: TOKEN SAVE
+		return UriComponentsBuilder.fromUriString(targetUrl)
+			.queryParam("access-token", accessToken)
+			.build().toUriString();
 	}
-
 }
