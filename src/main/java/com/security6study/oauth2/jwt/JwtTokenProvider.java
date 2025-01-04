@@ -6,7 +6,6 @@ import com.security6study.oauth2.oauth.CustomUserDetails;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -33,7 +32,7 @@ public class JwtTokenProvider {
 		this.refreshTokenRepository = refreshTokenRepository;
 	}
 
-	public String createAccessToken(Authentication authentication) {
+	public String generateAccessToken(Authentication authentication) {
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
 		String role = authentication.getAuthorities().stream()
@@ -53,7 +52,7 @@ public class JwtTokenProvider {
 			.compact();
 	}
 
-	public void addRefreshToken(Authentication authentication, HttpServletResponse httpServletResponse) {
+	public void generateRefreshToken(Authentication authentication) {
 		String refreshToken = createRefreshToken();
 		saveRefreshToken(authentication, refreshToken);
 	}

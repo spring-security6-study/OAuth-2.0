@@ -30,8 +30,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 	public String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		String targetUrl = getDefaultTargetUrl();
 
-		String accessToken = jwtTokenProvider.createAccessToken(authentication);
-		jwtTokenProvider.addRefreshToken(authentication, response);
+		String accessToken = jwtTokenProvider.generateAccessToken(authentication);
+		jwtTokenProvider.generateRefreshToken(authentication);
 
 		return UriComponentsBuilder.fromUriString(targetUrl)
 			.queryParam("access-token", accessToken)
