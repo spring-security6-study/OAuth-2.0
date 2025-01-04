@@ -20,10 +20,9 @@ public class OAuth2SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		 http
 			 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-				 .requestMatchers(
-					 "/kakao_login_medium_narrow.png",
-					 "/oauth2/**"
-				 ).permitAll()
+//				 .requestMatchers(
+//					 "/oauth2/**"
+//				 ).permitAll()
 				 .anyRequest().authenticated()
 			 )
 			 .oauth2Login(oauth2 -> oauth2
