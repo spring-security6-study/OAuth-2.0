@@ -1,6 +1,7 @@
 package com.security6study.oauth2.config;
 
 
+import com.security6study.oauth2.jwt.JWTFilter;
 import com.security6study.oauth2.jwt.JWTUtil;
 import com.security6study.oauth2.oauth2.CustomSuccessHandler;
 import com.security6study.oauth2.service.CustomOAuth2UserService;
@@ -58,6 +59,9 @@ public class SecurityConfig {
 
         //HTTP Basic 인증 방식 disable
         http.httpBasic((auth) -> auth.disable());
+
+        //JWTFilter 추가
+        http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         //oauth2
         //http.oauth2Login(Customizer.withDefaults());
